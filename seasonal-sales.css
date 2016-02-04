@@ -1,0 +1,30 @@
+body {
+  margin: 0 10px;
+}
+
+#seasonDropdown {
+  margin: 10px 10px;
+}
+
+.price {
+  font-weight: bold;
+  color: black;
+  font-style: normal;
+}
+
+.discounted {
+  font-style: italic;
+  color: blue;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+  background-color: #C9F7C5;
+}
+
+.table-striped>tbody>tr:nth-of-type(even) {
+  background-color: #FDE4E4;
+}
+
+.table-striped>tbody>tr:first-child {
+  background-color: #CCC;
+}
