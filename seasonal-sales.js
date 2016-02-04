@@ -1,56 +1,55 @@
-var categories = [];
-var products = [];
-var c;
-var p;
+var cObj;
+var pObj;
 
-var Seasonal = (function() {
-  // var carnivores = [];  // private
-  // var herbivores = [];  // private
+loadCategories();  // start chain of callbacks
 
-  return {  // public functions
-    loadCategories: function(callbackToInvoke) {
-      var loader = new XMLHttpRequest();
-      loader.addEventListener("load", function() {
-        c = JSON.parse(loader.responseText);
-        callbackToInvoke();
-      });
-      loader.open("GET", "categories.json");
-      loader.send();
-    },
-
-    loadProducts: function(callbackToInvoke) {
-      var loader = new XMLHttpRequest();
-      loader.addEventListener("load", function() {
-        p = JSON.parse(loader.responseText);
-        callbackToInvoke();
-      });
-      loader.open("GET", "products.json");
-      loader.send();
-    }
-  };
-})();
-
-function showCategories() {
-  c.categories.forEach(function (x) {
-    console.log(x);
+function loadCategories() { // first function in chain
+  var loader = new XMLHttpRequest();
+  loader.addEventListener("load", function() {
+    cArr = JSON.parse(loader.responseText).categories; // array corresp to key "categories"
+    loadProducts();  // first callback
   });
+  loader.open("GET", "categories.json");
+  loader.send();
 }
 
-function showProducts() {
-  p.products.forEach(function (x) {
-    console.log(x);
+function loadProducts() { // second function in chain
+  var loader = new XMLHttpRequest();
+  loader.addEventListener("load", function() {
+    pArr = JSON.parse(loader.responseText).products; // array corresp to key "products"
+    main();         // second callback
   });
+  loader.open("GET", "products.json");
+  loader.send();
 }
-
-Seasonal.loadCategories(showCategories);
-Seasonal.loadProducts(showProducts);
-
 
 function main() {
-  console.log("invoked main");
-  console.log(categories); // how can we make sure program doesn't progress until variables are loaded?
+  var dropdownRef = document.getElementById('seasonDropdown');
+  var currSeason = "";
+  updateDisplay(currSeason);
+
+  dropdownRef.addEventListener("change",function(event) {
+    currSeason = event.target.value;
+    updateDisplay(currSeason);
+  });
 }
 
-// <table class="table table-striped">
-//   ...
-// </table>
+function updateDisplay(currSeason) {
+  var outputRef = document.getElementById('outputField');
+  var outputStr = "";
+
+  outputStr += "<table class='table table-striped'>";
+  outputStr += "<tr><th>ProdID</th><th>Name</th><th>Price</th><th>Category</th></tr>";
+  for (var i = 0; i < pArr.length; i++) {
+    outputStr += `<tr><td>${pArr[i].id}</td><td>${pArr[i].name}</td>`;
+    if (currSeason == cArr[pArr[i].category_id - 1].season_discount) {
+      outputStr += `<td class='price discounted'>${(pArr[i].price * (1 - (cArr[pArr[i].category_id - 1].discount))).toFixed(2)}`;
+    } else {
+      outputStr += `<td class='price'>${pArr[i].price}</td>`;
+    }
+    outputStr += `<td>${cArr[pArr[i].category_id - 1].name}</td></tr>`;
+  }
+  outputStr += "</table>";
+
+  outputField.innerHTML = outputStr;
+}
